@@ -2,10 +2,13 @@ import { navLinks } from "../assets/assets";
 import { ShoppingCart, Menu, X } from "lucide-react";
 import { Link, NavLink } from "react-router-dom";
 import { useState } from "react";
+import { useCart } from "../hooks/useCart";
+import { assets } from "../assets/assets";
 
 const Header = () => {
   const links = navLinks;
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { getCartItemsCount } = useCart();
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -25,6 +28,7 @@ const Header = () => {
             className="text-indigo-950 text-2xl font-bold tracking-tight"
           >
             Books
+          {/* <img src={assets.logo} alt="" className=""/> */}
           </Link>
 
           {/* Desktop Navigation */}
@@ -53,30 +57,35 @@ const Header = () => {
             </ul>
 
             {/* Cart Icon */}
-            <button className="relative">
+            <Link to="/cart" className="relative">
               <ShoppingCart
                 size={24}
                 className="text-indigo-950 hover:text-indigo-500 transition cursor-pointer"
               />
-              {/* optional badge */}
-              <span className="absolute -top-2 -right-2 bg-indigo-500 text-white text-xs font-semibold rounded-full w-4 h-4 flex items-center justify-center">
-                3
-              </span>
-            </button>
+              {/* Dynamic cart badge */}
+              {getCartItemsCount() > 0 && (
+                <span className="absolute -top-2 -right-2 bg-indigo-500 text-white text-xs font-semibold rounded-full w-5 h-5 flex items-center justify-center">
+                  {getCartItemsCount()}
+                </span>
+              )}
+            </Link>
           </nav>
 
           {/* Mobile Menu Button */}
           <div className="flex items-center gap-4 md:hidden">
             {/* Cart Icon for Mobile */}
-            <button className="relative">
+            <Link to="/cart" className="relative" onClick={closeMenu}>
               <ShoppingCart
                 size={24}
                 className="text-indigo-950 hover:text-indigo-500 transition cursor-pointer"
               />
-              <span className="absolute -top-2 -right-2 bg-indigo-500 text-white text-xs font-semibold rounded-full w-4 h-4 flex items-center justify-center">
-                3
-              </span>
-            </button>
+              {/* Dynamic cart badge */}
+              {getCartItemsCount() > 0 && (
+                <span className="absolute -top-2 -right-2 bg-indigo-500 text-white text-xs font-semibold rounded-full w-5 h-5 flex items-center justify-center">
+                  {getCartItemsCount()}
+                </span>
+              )}
+            </Link>
 
             {/* Hamburger Menu */}
             <button
@@ -110,6 +119,17 @@ const Header = () => {
                   </NavLink>
                 </li>
               ))}
+              {/* Mobile Cart Link */}
+              <li>
+                <Link
+                  to="/cart"
+                  onClick={closeMenu}
+                  className="flex items-center gap-2  py-2 px-4 rounded-lg transition-colors hover:bg-zinc-300"
+                >
+                  <ShoppingCart size={18} />
+                  Cart {getCartItemsCount() > 0 && `(${getCartItemsCount()})`}
+                </Link>
+              </li>
             </ul>
           </div>
         )}

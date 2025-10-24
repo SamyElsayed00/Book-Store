@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useInView } from "react-intersection-observer";
 import { assets } from "../assets/assets";
+import { Link } from "react-router-dom";
 
 const FavoriteBooks = () => {
   const [bookCount, setBookCount] = useState(0);
@@ -74,9 +75,9 @@ const FavoriteBooks = () => {
               </div>
             </div>
 
-            <button className="bg-indigo-500 hover:bg-indigo-600 cursor-pointer text-white font-semibold py-3 px-8 rounded-lg transition duration-200 transform hover:scale-105 shadow-lg">
+            <Link to={"/explore"} className="bg-indigo-500 hover:bg-indigo-600 cursor-pointer text-white font-semibold py-3 px-8 rounded-lg transition duration-200 transform hover:scale-105 shadow-lg">
               Explore Now
-            </button>
+            </Link>
           </div>
         </div>
       </div>

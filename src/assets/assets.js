@@ -1,4 +1,4 @@
-// src/assets/assets.js
+import logo from "./logo.png";
 
 import landingBook1 from "./landingBook1.png";
 import landingBook2 from "./landingBook2.png";
@@ -25,6 +25,7 @@ import amercanExpress from "./amercan express.png";
 import landingBooks from "./books-landing.png";
 
 export const assets = {
+  logo,
   landingBook1,
   landingBook2,
   landingBook3,
@@ -48,5 +49,6 @@ export const navLinks = [
   { label: "Home", to: "/" },
   { label: "Explore", to: "/explore" },
   { label: "Shop", to: "/shop" },
-  { label: "Sell Your Book", to: "/sell" },
+  { label: "Community Books", to: "/user-books" },
+  { label: "Sell Your Book", to: "/sell" }
 ];

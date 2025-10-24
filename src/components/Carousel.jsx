@@ -1,10 +1,16 @@
+// Carousel.jsx
 import { Star, ShoppingCart, ChevronLeft, ChevronRight } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
+import { useCart } from "../hooks/useCart";
+import toast from "react-hot-toast";
 
-const Carousel = ({books}) => {
-
+const Carousel = ({ books }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [booksPerView, setBooksPerView] = useState(4);
+  const [itemWidth, setItemWidth] = useState(0);
+  const containerRef = useRef(null);
+
+  const { addToCart } = useCart();
 
   useEffect(() => {
     const updateBooksPerView = () => {
@@ -19,16 +25,49 @@ const Carousel = ({books}) => {
     return () => window.removeEventListener("resize", updateBooksPerView);
   }, []);
 
-  const nextSlide = () =>
-    setCurrentIndex((prev) => Math.min(prev + 1, books.length - booksPerView));
-  const prevSlide = () => setCurrentIndex((prev) => Math.max(prev - 1, 0));
+  // Calculate item width based on container and gap
+  useEffect(() => {
+    if (containerRef.current && booksPerView > 0) {
+      const containerWidth = containerRef.current.offsetWidth;
+      const gap = 16; // gap-4 = 16px
+      const totalGapWidth = gap * (booksPerView - 1);
+      const calculatedWidth = (containerWidth - totalGapWidth) / booksPerView;
+      setItemWidth(calculatedWidth);
+    }
+  }, [booksPerView]);
 
-  const totalPages = books.length - booksPerView + 1;
+  const nextSlide = () => {
+    if (canGoNext) {
+      setCurrentIndex((prev) => prev + 1);
+    }
+  };
+
+  const prevSlide = () => {
+    if (canGoPrev) {
+      setCurrentIndex((prev) => prev - 1);
+    }
+  };
+
+  const totalPages = Math.max(books.length - booksPerView + 1, 1);
   const canGoNext = currentIndex < books.length - booksPerView;
   const canGoPrev = currentIndex > 0;
 
+  const handleAddToCart = (book) => {
+    addToCart(book);
+    toast.success(`"${book.title}" added to cart!`, {
+      duration: 1500,
+      style: {
+        background: "#333",
+        color: "#fff",
+      },
+    });
+  };
+
+  // Calculate translateX based on actual item width and gap
+  const translateX = currentIndex * (itemWidth + 16); // 16px for gap-4
+
   return (
-    <div className="relative">
+    <div className="relative" ref={containerRef}>
       {/* Navigation Arrows */}
       <button
         onClick={prevSlide}
@@ -59,14 +98,14 @@ const Carousel = ({books}) => {
         <div
           className="flex transition-transform duration-300 ease-in-out gap-4"
           style={{
-            transform: `translateX(-${currentIndex * (100 / booksPerView)}%)`,
+            transform: `translateX(-${translateX}px)`,
           }}
         >
           {books.map((book, index) => (
             <div
-              key={index}
-              className="flex-shrink-0 px-2"
-              style={{ width: `${100 / booksPerView}%` }}
+              key={book.id || index}
+              className="flex-shrink-0"
+              style={{ width: `${itemWidth}px` }}
             >
               <div className="w-full bg-indigo-50 rounded-xl p-4 flex flex-col items-center shadow-sm hover:shadow-md transition">
                 {/* Book Image */}
@@ -97,7 +136,7 @@ const Carousel = ({books}) => {
                         size={14}
                         className={`${
                           i < book.rate
-                            ? "text-lime-500 fill-lime-500"
+                            ? "text-yellow-500 fill-yellow-500"
                             : "text-indigo-200 fill-indigo-200"
                         }`}
                       />
@@ -110,7 +149,10 @@ const Carousel = ({books}) => {
                 </p>
 
                 {/* Add to Cart Button */}
-                <button className="mt-3 w-full cursor-pointer bg-gray-900 hover:bg-gray-800 text-white font-medium py-2 rounded-lg flex items-center justify-center space-x-2 transition">
+                <button
+                  onClick={() => handleAddToCart(book)}
+                  className="mt-3 w-full cursor-pointer bg-gray-900 hover:bg-gray-800 text-white font-medium py-2 rounded-lg flex items-center justify-center space-x-2 transition"
+                >
                   <ShoppingCart className="w-4 h-4" />
                   <span>Add To Cart</span>
                 </button>
@@ -121,21 +163,23 @@ const Carousel = ({books}) => {
       </div>
 
       {/* Dots Indicator */}
-      <div className="flex justify-center mt-6 space-x-2">
-        {Array.from({ length: totalPages }).map((_, index) => (
-          <button
-            key={index}
-            onClick={() => setCurrentIndex(index)}
-            className={`w-2 h-2 rounded-full transition-all duration-200 ${
-              index === currentIndex
-                ? "bg-gray-900 w-4"
-                : "bg-gray-300 hover:bg-gray-400"
-            }`}
-          />
-        ))}
-      </div>
+      {totalPages > 1 && (
+        <div className="flex justify-center mt-6 space-x-2">
+          {Array.from({ length: totalPages }).map((_, index) => (
+            <button
+              key={index}
+              onClick={() => setCurrentIndex(index)}
+              className={`w-2 h-2 rounded-full transition-all duration-200 ${
+                index === currentIndex
+                  ? "bg-gray-900 w-4"
+                  : "bg-gray-300 hover:bg-gray-400"
+              }`}
+            />
+          ))}
+        </div>
+      )}
     </div>
   );
 };
 
-export default Carousel; // Use a proper name
+export default Carousel;
